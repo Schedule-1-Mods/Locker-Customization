@@ -16,9 +16,9 @@ namespace LockerColorMod
 
         public override void OnUpdate()
         {
-            LockerEditor.UpdateVisibility();
-            LockerEditor.TickPendingReapply();
-            ClipboardDuplicator.Tick();
+            using (new Probe("Locker UpdateVisibility")) LockerEditor.UpdateVisibility();
+            using (new Probe("Locker Reapply")) LockerEditor.TickPendingReapply();
+            using (new Probe("Locker Clipboards")) ClipboardDuplicator.Tick();
 
             if (Input.GetKeyDown(KeyCode.E))
             {
