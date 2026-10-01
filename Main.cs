@@ -1,7 +1,7 @@
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(LockerColorMod.Core), "Locker Customization", "1.0.0", "Cassy")]
+[assembly: MelonInfo(typeof(LockerColorMod.Core), "✽ Locker Customization", "1.0.0", "Cassy")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace LockerColorMod
