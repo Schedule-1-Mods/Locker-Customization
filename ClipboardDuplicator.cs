@@ -39,7 +39,7 @@ namespace LockerColorMod
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
         private static string FullNameMain(Il2CppScheduleOne.NPCs.NPC npc) => npc.FirstName + " " + npc.LastName;
 
-        private const float ScanInterval = 2f;
+        private const float ScanInterval = 5f; // a scene scan - new lockers get their side clipboards within 5 s
         private const float ResyncInterval = 1f;
 
         // How far the clone sits proud of the surface MeasureSide hits, in metres - negative pulls
@@ -68,11 +68,43 @@ namespace LockerColorMod
         private static float _nextScanTime;
         private static float _nextResyncTime;
 
+        // Walking every object in the scene for EmployeeHomes cost ~80 ms (a visible hitch every
+        // 5 s with a big save). So the 5 s check is only a count of the items placed in the
+        // properties you own; the full scan runs when that count changes, when a locker was seen
+        // before its clipboard existed, and as a slow safety net.
+        private const float SafetyScanInterval = 120f;
+        private static int _lastSignature = int.MinValue;
+        private static float _nextSafetyScan;
+        private static bool _retryScan;
+        private static int _retriesLeft = 6;
+
         public static void OnSceneLoaded()
         {
             _records.Clear();
             _nextScanTime = 0f;
             _nextResyncTime = 0f;
+            _lastSignature = int.MinValue;
+            _retryScan = false;
+            _retriesLeft = 6;
+        }
+
+        // How many things are placed across the properties you own; -1 if the game won't say.
+        private static int PlacedItemCount()
+        {
+            try
+            {
+                var owned = Il2CppScheduleOne.Property.Property.OwnedProperties;
+                if (owned == null) return -1;
+                int total = 0;
+                for (int i = 0; i < owned.Count; i++)
+                {
+                    var p = owned[i];
+                    if (p == null || p.BuildableItems == null) continue;
+                    total += p.BuildableItems.Count + 1;
+                }
+                return total;
+            }
+            catch { return -1; }
         }
 
         public static void Tick()
@@ -80,7 +112,15 @@ namespace LockerColorMod
             if (Time.time >= _nextScanTime)
             {
                 _nextScanTime = Time.time + ScanInterval;
-                ScanForNewLockers();
+                int signature = PlacedItemCount();
+                if (signature < 0 || signature != _lastSignature || _retryScan || Time.time >= _nextSafetyScan)
+                {
+                    if (signature != _lastSignature) _retriesLeft = 6;
+                    _lastSignature = signature;
+                    _retryScan = false;
+                    _nextSafetyScan = Time.time + SafetyScanInterval;
+                    ScanForNewLockers();
+                }
             }
 
             if (Time.time >= _nextResyncTime)
@@ -104,7 +144,7 @@ namespace LockerColorMod
                 }
 
                 int id = home.GetInstanceID();
-                if (_records.ContainsKey(id) || home.Clipboard == null)
+                if (_records.ContainsKey(id))
                 {
                     continue;
                 }
@@ -117,6 +157,13 @@ namespace LockerColorMod
                 if (home.gameObject == null || home.gameObject.name.IndexOf("Locker", System.StringComparison.OrdinalIgnoreCase) < 0)
                 {
                     _records[id] = new LockerRecord { Home = home };
+                    continue;
+                }
+
+                if (home.Clipboard == null)
+                {
+                    // A locker whose clipboard isn't there yet: look again in 5 s (a few times at most).
+                    if (_retriesLeft > 0) { _retriesLeft--; _retryScan = true; }
                     continue;
                 }
 
