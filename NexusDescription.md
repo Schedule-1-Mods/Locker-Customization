@@ -11,7 +11,7 @@ Adds two quality-of-life features to employee lockers: full colour customisation
 
 [size=4][b]Installation instructions[/b][/size]
 1. Install [url=https://melonwiki.xyz/]MelonLoader[/url] 0.7.x into Schedule I and start the game once so it sets itself up.
-2. Put "Locker Customization.dll" into the game's Mods folder.
+2. Put "✽ Locker Customization.dll" into the game's Mods folder.
 3. Start the game and load your save. MelonLoader loads the mod automatically.
 
 [size=4][b]Main features[/b][/size]
@@ -27,7 +27,7 @@ Adds two quality-of-life features to employee lockers: full colour customisation
 
 [size=4][b]Troubleshooting[/b][/size]
 - Your locker colours are saved in "LockerColorMod_Lockers.json", next to the DLL in the Mods folder. Delete it to reset every locker.
-- To uninstall, delete "Locker Customization.dll". Your save is never changed.
+- To uninstall, delete "✽ Locker Customization.dll". Your save is never changed.
 - If the panel doesn't open or colours don't come back after a load, post the lines from MelonLoader/Latest.log that mention the mod in the comments.
 
 

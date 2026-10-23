@@ -11,7 +11,7 @@ It only touches lockers, not employees or their appearance.
 ## Install
 
 1. Install MelonLoader 0.7.x for Schedule I.
-2. Put `Locker Customization.dll` in the game's `Mods` folder.
+2. Put `✽ Locker Customization.dll` in the game's `Mods` folder.
 
 ## Building
 
